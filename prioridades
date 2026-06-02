@@ -1,0 +1,35 @@
+PRIORIDAD ALTA: Riesgos Críticos de Estabilidad y Seguridad
+   * Agotamiento de Conexiones (DB Connection Leak): La función conectar()
+     instancia un objeto PDO en cada invocación. En un entorno real, esto genera
+     un cuello de botella que bloqueará el servidor de base de datos bajo una
+     carga mínima de usuarios concurrentes (Error 1040: Too many connections).
+   * Vulnerabilidad por Exposición de Estructura (Falta de Front Controller): El
+     acceso directo a archivos en /controladores y /api permite omitir capas de
+     seguridad si un programador olvida incluir manualmente el helper de sesión
+     o CSRF en un nuevo archivo. La superficie de ataque es proporcional al
+     número de archivos en el proyecto.
+   * Fragilidad de Reglas de Negocio (Hardcoding): El uso de
+     strpos(strtolower($datos['materia_nombre']), 'proyecto...') para decidir si
+     un alumno aprueba con 16 o 12 es una falla de diseño grave. Si se renombra
+  🟡 PRIORIDAD MEDIA: Deuda Técnica y Mantenibilidad
+   * Violación de DRY (Don't Repeat Yourself) en Controladores: La lógica de
+     validación de tokens CSRF, tiempos de expiración de sesión y sanitización
+     de inputs está duplicada en cada controlador. Cualquier cambio en la
+     política de seguridad requiere editar decenas de archivos.
+   * Inconsistencia en el Manejo de Estados y Errores: No existe un estándar
+     para las respuestas. El sistema mezcla redirecciones por URL
+     (?error=login), salida directa de JSON y die() con mensajes de texto plano.
+     Esto impide la integración limpia con un frontend moderno o una app móvil.
+   * Acoplamiento en la Capa de Servicios: CalificacionService realiza consultas
+     directas a la base de datos y orquesta lógica de negocio simultáneamente.
+     Esto imposibilita la creación de pruebas unitarias y dificulta la
+     reutilización de lógica en otros módulos.
+
+  🟢 PRIORIDAD BAJA: Optimización y Estándares
+   * Lógica de Presentación en Vistas: Archivos como home.php contienen bloques
+     extensos de lógica condicional (if ($rol === 'admin')) mezclados con HTML.
+     Esto dificulta el trabajo de diseñadores o desarrolladores frontend.
+   * Manejo de Activos (Assets): La carga de librerías externas (CDN) y scripts
+     locales se hace de forma manual en los headers de cada página, sin un
+     proceso de minificación o gestión de dependencias centralizado.
+
